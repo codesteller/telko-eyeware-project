@@ -1,0 +1,26 @@
+<annotation>
+	<folder>Input_JPEG</folder>
+	<filename>BTR4527C2_img_01.jpeg</filename>
+	<path>/home/pallab/Developer/03_Freelancer/telko-eyeware-project/data/test/Input_JPEG/BTR4527C2_img_01.jpeg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>4272</width>
+		<height>2848</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>eyeglass</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>1297</xmin>
+			<ymin>1058</ymin>
+			<xmax>3005</xmax>
+			<ymax>1617</ymax>
+		</bndbox>
+	</object>
+</annotation>
