@@ -1,5 +1,5 @@
-segment-anything @ git+https://github.com/facebookresearch/segment-anything.git
-super-gradients @ git+https://github.com/Deci-AI/super-gradients.git@stable
+segment-anything
+super-gradients
 # scikit-image
 tensorboardX
 # albumentations

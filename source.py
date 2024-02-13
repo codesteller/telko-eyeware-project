@@ -42,6 +42,10 @@ def main(MODEL_TYPE, data_dir):
 
     improc.create_segmentation_mask(database, sam_model)
 
+    
+
+
+
 
     # # Test bbox prompt
     # image_path = list(database.keys())[0]
@@ -61,7 +65,8 @@ def main(MODEL_TYPE, data_dir):
 
 if __name__ == "__main__":
 
-    data_dir = "/home/pallab/Dataset/telko-eyeware/Fotos_360_CRUDAS/NATT/"
+    # data_dir = "/home/pallab/Dataset/telko-eyeware/Fotos_360_CRUDAS/NATT/"
+    data_dir = "/workspace/data/NATT/"
     MODEL_TYPE = "vit_h"
     main(MODEL_TYPE, data_dir)
 

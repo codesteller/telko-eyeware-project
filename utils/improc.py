@@ -165,3 +165,5 @@ def create_segmentation_mask(db, sam_model):
         cv2.imwrite(imwrite_path, masked_image_cropped)
 
     return None
+
+

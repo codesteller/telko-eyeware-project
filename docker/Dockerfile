@@ -1,76 +1,26 @@
 # /**
-#  * @ Author: Your name
+#  * @ Author: Pallab Maji
 #  * @ Create Time: 2024-01-22 09:46:13
-#  * @ Modified by: Your name
+#  * @ Modified by: Pallab
 #  * @ Modified time: 2024-01-22 09:49:10
 #  * @ Description:
 #  */
 
+FROM pytorch/pytorch:2.1.2-cuda12.1-cudnn8-runtime
 
-# FROM nvcr.io/nvidia/pytorch:23.12-py3
-FROM nvcr.io/nvidia/cuda:12.2.2-cudnn8-runtime-ubuntu22.04
-# FROM pytorch/pytorch:2.1.2-cuda12.1-cudnn8-runtime
-
-ARG OPENCV_VERSION="4.9.0"
-ENV DEBIAN_FRONTEND=noninteractive
+ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get upgrade -y
-RUN apt-get install wget curl build-essential software-properties-common -y
-RUN apt-get install -y git neovim tmux btop dbus-x11 qv4l2 v4l-utils zlib1g-dev
-RUN apt-get install -y binutils ca-certificates cmake cmake-qt-gui curl \
-    ffmpeg g++ gcc git gnupg gosu libavcodec-dev libavformat-dev \
-    libavutil-dev libeigen3-dev libglew-dev libgtk2.0-dev libgtk-3-dev \
-    libjpeg-dev libpng-dev libpostproc-dev libswscale-dev libtbb-dev \
-    libtiff-dev libv4l-dev libxvidcore-dev libx264-dev ninja-build \
-    pkg-config protobuf-compiler \
-    python3-dev python3-numpy python3-pip python3-protobuf \
-    python3-testresources qtbase5-dev qtdeclarative5-dev \
-    unzip wget yasm zip
-RUN apt-get install locales -y && locale-gen en_US.UTF-8 \
-    && LC_ALL=en_US.UTF-8 \
-    && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean
+RUN apt-get install -y git neovim tmux 
+RUN apt-get install -y software-properties-common build-essential
+RUN apt-get install -y git wget curl 
+RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
 
-RUN pip install --upgrade pip
+COPY telko-eyeware-project/docker/requirements.txt .
+RUN pip install -r requirements.txt
 
-WORKDIR /workspace/opencv
-RUN wget -O opencv.zip https://github.com/opencv/opencv/archive/${OPENCV_VERSION}.zip \
-    && wget -O opencv_contrib.zip https://github.com/opencv/opencv_contrib/archive/${OPENCV_VERSION}.zip \
-    && unzip opencv.zip \
-    && unzip opencv_contrib.zip \
-    && mv opencv-${OPENCV_VERSION} opencv \
-    && mv opencv_contrib-${OPENCV_VERSION} opencv_contrib
+# Open port 8888 for jupyter notebook
+EXPOSE 8888
 
-RUN mkdir /workspace/opencv/opencv/build
-WORKDIR /workspace/opencv/opencv/build
-
-RUN cmake -D CMAKE_BUILD_TYPE=RELEASE \
-    -D CMAKE_INSTALL_PREFIX=/usr/local \
-    -D INSTALL_PYTHON_EXAMPLES=ON \
-    -D INSTALL_C_EXAMPLES=ON \
-    -D WITH_TBB=ON \
-    -D WITH_CUDA=ON \
-    -D BUILD_opencv_cudacodec=ON \
-    -D ENABLE_FAST_MATH=1 \
-    -D CUDA_FAST_MATH=1 \
-    -D WITH_CUBLAS=1 \
-    -D WITH_V4L=ON \
-    -D WITH_QT=ON \
-    -D WITH_OPENGL=ON \
-    -D WITH_GSTREAMER=ON \
-    -D OPENCV_GENERATE_PKGCONFIG=ON \
-    -D OPENCV_PC_FILE_NAME=opencv.pc \
-    -D OPENCV_ENABLE_NONFREE=ON \
-    -D PYTHON_INCLUDE_DIR=$(python3 -c "import sysconfig; print(sysconfig.get_path('include'))")  \
-    -D PYTHON_LIBRARY=$(python3 -c "import sysconfig; print(sysconfig.get_config_var('LIBDIR'))") \
-    -D OPENCV_PYTHON3_INSTALL_PATH=$(python3 -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())") \
-    -D OPENCV_EXTRA_MODULES_PATH=../../opencv_contrib/modules \
-    -D PYTHON_EXECUTABLE=$(which python3) \
-    -D BUILD_EXAMPLES=ON .. \
-    && make -j$(nproc) && make install && ldconfig
-
-COPY docker/requirements.txt /tmp/requirements.txt
-RUN pip install -r /tmp/requirements.txt
-
-
+RUN git clone https://huggingface.co/briaai/RMBG-1.4 /workspace/&& cd RMBG-1.4 && pip install -r requirements.txt
 
