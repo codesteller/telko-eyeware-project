@@ -11,10 +11,28 @@ import cv2
 import numpy as np
 
 class Database:
-    def __init__(self, data_dir):
+    def __init__(self, data_dir, input_type="bugsy"):       # Input type can be bugsy or natt or both
         self.data_dir = data_dir
-        self.image_dir = os.path.join(data_dir, "NATT360JPEG")
-        self.anno_dir = os.path.join(data_dir, "NATT360JPEG_Annotated")
+        self.input_type = input_type
+        self.image_type = [".jpeg"]
+        self.anno_type = ".txt"
+        self.target_type = ["jpeg", "jpg", "png"]
+
+        if input_type.lower() == "bugsy":
+            self.image_dir = [os.path.join(data_dir, "BUGSY360JPEG")]
+            self.anno_dir = [os.path.join(data_dir, "BUGSY360JPEG_Annotated")]
+            self.target_dirs = [os.path.join(data_dir, "BUGSY360JPEG_WEB")]
+        elif input_type.lower() == "natt":
+            self.image_dir = [os.path.join(data_dir, "NATT360JPEG")]
+            self.anno_dir = [os.path.join(data_dir, "NATT360JPEG_Annotated")]
+            self.target_dirs = [os.path.join(data_dir, "NATT360JPEG_WEB")]
+        elif input_type.lower() == "both":
+            self.image_dir = [os.path.join(data_dir, "BUGSY360JPEG"), os.path.join(data_dir, "NATT360JPEG")]
+            self.anno_dir = [os.path.join(data_dir, "BUGSY360JPEG_Annotated"), os.path.join(data_dir, "NATT360JPEG_Annotated")]
+            self.target_dirs = [os.path.join(data_dir, "BUGSY360JPEG_WEB"), os.path.join(data_dir, "NATT360JPEG_WEB")]
+        else:
+            raise ValueError("Invalid Input Type")
+        
         self.image_list = self.get_image_list()  
         self.anno_list = self.get_anno_list()
         self.database = self.get_database()
@@ -22,38 +40,54 @@ class Database:
     def get_image_list(self):
         # Get Image List
         image_list = []
-        for root, dirs, files in os.walk(self.image_dir):
-            for file in files:
-                if file.endswith(".jpeg"):
-                    image_list.append(os.path.join(root, file))
+        for root in self.image_dir:
+            for root, dirs, files in os.walk(root):
+                for file in files:
+                    if file.endswith(tuple(self.image_type)):
+                        image_list.append(os.path.join(root, file))
 
         return image_list
     
     def get_anno_list(self):
         # Get Annotation List
         anno_list = []
-        for root, dirs, files in os.walk(self.anno_dir):
-            for file in files:
-                if file.endswith(".txt"):
-                    anno_list.append(os.path.join(root, file))
+        for root in self.anno_dir:
+            for root, dirs, files in os.walk(root):
+                for file in files:
+                    if file.endswith(self.anno_type):
+                        anno_list.append(os.path.join(root, file))
 
         return anno_list
     
+    def get_target_list(self):
+        # Get Target List
+        target_list = []
+        for root in self.target_dirs:
+            for root, dirs, files in os.walk(root):
+                for file in files:
+                    if file.endswith(self.target_type):
+                        target_list.append(os.path.join(root, file))
+
+        return target_list
+    
     def get_database(self):
-        # Get Image with Annotation
+        # Get Database
         database = {}
         for image_path in self.image_list:
+            image_name = os.path.basename(image_path)
             for anno_path in self.anno_list:
-                if os.path.basename(image_path).split(".")[0] == os.path.basename(anno_path).split(".")[0]:
-                    database[image_path] = anno_path
-
+                anno_name = os.path.basename(anno_path)
+                for target_path in self.target_list:
+                    target_name = os.path.basename(target_path)
+                    if image_name in anno_name and image_name in target_name:
+                        database[image_path] = [anno_path, target_path]     
         return database
     
 
-class DatasetPreparation:
+class DatasetPreparation(Database):
     def __init__(self, data_dir):
+        super().__init__(data_dir, input_type="bugsy")      # Input type can be bugsy or natt or both
         self.data_dir = data_dir
-        self.db = Database(data_dir)
         self.image_list = self.db.image_list
         self.anno_list = self.db.anno_list
         self.database = self.db.database
@@ -133,12 +167,13 @@ class DatasetPreparation:
         print("Dataset Created!")
     
 if __name__ == "__main__":
-    data_dir = "./data/NATT/"
-    db = Database(data_dir)
+    data_dir = "./data/"
+    db = Database(data_dir, input_type="bugsy")
     print("Total Images: ", len(db.image_list))
     print("Total Annotations: ", len(db.anno_list))
-    print("Total Images with Annotation: ", len(db.database))
+    print("Total Targets: ", len(db.target_list))
+    print("Total Images with Annotation and Targets: ", len(db.database))
 
-    dp = DatasetPreparation(data_dir)
-    dp.create_dataset()
+    # dp = DatasetPreparation(data_dir)
+    # dp.create_dataset()
     

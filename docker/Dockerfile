@@ -22,5 +22,5 @@ RUN pip install -r requirements.txt
 # Open port 8888 for jupyter notebook
 EXPOSE 8888
 
-RUN git clone https://huggingface.co/briaai/RMBG-1.4 /workspace/&& cd RMBG-1.4 && pip install -r requirements.txt
+RUN git clone https://huggingface.co/briaai/RMBG-1.4 && cd RMBG-1.4 && pip install -r requirements.txt
 

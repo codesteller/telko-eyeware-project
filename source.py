@@ -10,6 +10,7 @@ import cv2
 import numpy as np
 from segment_anything import sam_model_registry
 from utils import improc
+from utils.RMBG import bg_subtraction as rmbg
 import torch
 
 
@@ -40,8 +41,12 @@ def main(MODEL_TYPE, data_dir):
 
     print("Total Images with Annotation: ", len(database))
 
-    improc.create_segmentation_mask(database, sam_model)
+    # improc.create_segmentation_mask(database, sam_model)
 
+
+    rmbg_model = rmbg.RMBG14()
+    # rmbg_model.remove_background_from_image_list(image_list)
+    rmbg_model.remove_background_from_db(database)
     
 
 
